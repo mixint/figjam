@@ -1,0 +1,9 @@
+{
+  "name": "@mixint/figjam",
+  "version": "1.0.0",
+  "description": "Objective CSS + HTML + CustomElement composer and bundler",
+  "main": "bin/figjam.js",
+  "repository": "https://github.com/mixint/figjam.git",
+  "author": "Colten Jackson <jazzyjackson@gmail.com>",
+  "license": "ncsa"
+}
