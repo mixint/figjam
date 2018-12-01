@@ -1,0 +1,10 @@
+{"body":{
+	"childNodes": [
+		{"h1":{"textContent":"hello {{something}}"}},
+		{"h2":{"textContent":"hello {{something}}"}},
+		{"h3":{"textContent":"hello {{something}}"}},
+		{"h4":{"textContent":"hello {{something}}"}},
+		{"style":{"*":{"color": "{{color}}"}}}
+	]
+}}
+

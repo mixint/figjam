@@ -1,4 +1,8 @@
 const Transflect = require('@mixint/transflect')
+const ctxify = require('ctxify').ctxify
+const fs = require('fs')
+const url = require('url')
+const path = require('path')
 const http = require('http')
 const https = require('https')
 
@@ -8,13 +12,14 @@ module.exports = class FigJam extends Transflect {
 	_open(source){
 		// check that I have access to the target directory...
 		return Promise.all([
-			this.loadObject(`${this.source.query.figroot || this.source.query.fig || ''}.figroot.json`)
-			this.loadObject(`${this.source.query.transfig || this.source.query.fig || ''}.transfig.json`)
+			this.loadObject(`${this.source.query.figroot || this.source.query.fig || ''}.figroot.json`),
+			this.loadObject(`${this.source.query.transfig || this.source.query.fig || ''}.transfig.json`),
 			this.loadObject(this.source.query.ctx || this.source.query)
-		]).then([figroot, transfig, ctx] => {
+		]).then(([figroot, transfig, ctx]) => {
 			this.figroot = figroot
 			this.transfig = transfig
-			thix.ctx = ctx
+			this.ctx = ctx
+			return ctxify(this.figroot, this.ctx)
 		}) // 
 	}
 
@@ -53,47 +58,50 @@ module.exports = class FigJam extends Transflect {
 	 * in which case, I just fallback to the pathname query object as my context.
 	 */
 	loadObject(fig){
-		return new Promise((resolve, reject) => {
-			if(Object.prototype.toString.call(fig) == '[object Object]'){
-				resolve(fig)
-			} else if(url.query(fig).protocol == 'http'){ // if it looks like a URL...
-				http.get(fig, response => {
-					let buffers = []
-					response.on('data', data => buffers.push(data))
-					response.on('end', () => resolve(Buffer.concat(buffers).toString()))
-				})
-			} else if(url.query(fig).protocol == 'https'){
-				https.get(fig, response => {
-					let buffers = []
-					response.on('data', data => buffers.push(data))
-					response.on('end', () => resolve(Buffer.concat(buffers).toString()))
-				})
-			} else {
-				this.find(this.source.pathname, fig, (err, figfullpath) => {
-					if(err) reject(err)
-					fs.readFile(figfullpath, (err, buffer) => {
-						if(err) reject(err)
-						else resolve(buffer.toString())
+		if(Object.prototype.toString.call(fig) == '[object Object]'){
+			return Promise.resolve(fig)
+		} else {
+			return new Promise((resolve, reject) => {
+				if(url.parse(fig).protocol == 'http'){ // if it looks like a URL...
+					http.get(fig, response => {
+						let buffers = []
+						response.on('data', data => buffers.push(data))
+						response.on('end', () => resolve(Buffer.concat(buffers)))
 					})
-				})
-			}
-		}).then(textContents => new Promise((resolve, reject) => {
-			try {
-				resolve(JSON.parse(textContents))
-			} catch(e){
-				reject(e)
-			}
-		}))
+				} else if(url.parse(fig).protocol == 'https'){
+					https.get(fig, response => {
+						let buffers = []
+						response.on('data', data => buffers.push(data))
+						response.on('end', () => resolve(Buffer.concat(buffers)))
+					})
+				} else {
+					this.find(this.source.pathname, fig, (err, figfullpath) => {
+						if(err) reject(err)
+						fs.readFile(figfullpath, (err, buffer) => {
+							if(err) reject(err)
+							else resolve(buffer)
+						})
+					})
+				}
+			}).then(buffer => new Promise((resolve, reject) => {
+				try {
+					resolve(JSON.parse(buffer))
+				} catch(e){
+					reject(e)
+				}
+			}))
+		}
 	}
 
 	find(pathname, basename, callback){
-		var pathparts = source.pathname.split('/')
+		var pathparts = pathname.split('/')
 		var extantfig = null
 		var tryfig = null
 
 		while(!extantfig && pathparts.length){
 			try {
-				tryfig = path.resolve('/', ...pathparts, basename)
+				tryfig = path.resolve(...pathparts, basename)
+				console.log(tryfig)
 				fs.accessSync(tryfig, fs.constants.R_OK) // if file isn't readable, catch!
 				extantfig = tryfig
 			} catch(e){
