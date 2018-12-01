@@ -5,5 +5,5 @@
   "main": "bin/figjam.js",
   "repository": "https://github.com/mixint/figjam.git",
   "author": "Colten Jackson <jazzyjackson@gmail.com>",
-  "license": "ncsa"
+  "license": "bsd-3-clause"
 }
