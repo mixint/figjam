@@ -2,6 +2,30 @@
 # yarn lockfile v1
 
 
+"@mixint/bytepipette@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@mixint/bytepipette/-/bytepipette-1.1.0.tgz#44e6ad96a01e1dd07ccb5f1d8124bacba9ea0446"
+  integrity sha512-JfFl59tXnptVxYQP3SMsBX/yXGFwxfjoD6sjPc8XvB2lhLPph1pb5bx0vvfq/JOzB/sG+nNKdqbyzlsuZviucA==
+  dependencies:
+    "@mixint/extrastat" "1.0.0"
+    "@mixint/transflect" "0.7.0"
+    parsedmessage "3.0.1"
+    serverfailsoft "2.0.2"
+
+"@mixint/extrastat@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@mixint/extrastat/-/extrastat-1.0.0.tgz#1246e5e10e1786b98e7a277d531c5c0b6b45c3a0"
+  integrity sha512-6MAqonb1w2R9tj8MaIxHc68b3m53385oWxiyczVxVeNuiMUHExAHocw/M65g0uWngVpYh8XJId67eFS76LqeIA==
+
+"@mixint/transflect@0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@mixint/transflect/-/transflect-0.7.0.tgz#f91b6528eec008a907f2d86f5cf57aa37c30f7be"
+  integrity sha512-s+o+jJcuu2kdcyKk/tUkeW4N9U/LOMIvqclTFBaxukmNfbjTF0ZvQvde70fUpjG7lVSxnZOHamt/AjlSKQa68A==
+  dependencies:
+    parsedmessage "3.0.1"
+    serverfailsoft "2.0.2"
+    streamverbose "0.2.1"
+
 "@mixint/transflect@^0.8.3":
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/@mixint/transflect/-/transflect-0.8.3.tgz#132aa606355ace8baa148ae29b39f2a070dab976"
@@ -16,10 +40,20 @@ ctxify@^0.4.0:
   resolved "https://registry.yarnpkg.com/ctxify/-/ctxify-0.4.0.tgz#18a546b5675b38a6845d996c6927bf36ce158be8"
   integrity sha512-s9nC+ljQa5dvr0szZOPfRHDEJkw5iI/6jkuk+Z2PpCLXJmjKA5fa3jpiS+DOcQuh4aSYfklDPrm7durnpVVfFw==
 
+parsedmessage@3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/parsedmessage/-/parsedmessage-3.0.1.tgz#1e9aa3785cb8511dc72295d46a5d1a76e6afb043"
+  integrity sha512-6nUqDz6biYZYeW8pKbR6pFunv3u3mgQjjtR2LOPi7xJAv2wc40DgIfLa8oWMOKOB6ZXlsCrtMVgGiYn0nf7kwg==
+
 parsedmessage@3.1.0, parsedmessage@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/parsedmessage/-/parsedmessage-3.1.0.tgz#9357449cad5099d85455ecf1d336d0193816ef85"
   integrity sha512-LRWoIhPUh+6myo9loWM9arfKeg/5KjjSbjK0RNwXL/ktu36AIR+NaNn37Zvo5ehzYunL2nd0y9XHmTb1RRBv+Q==
+
+serverfailsoft@2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/serverfailsoft/-/serverfailsoft-2.0.2.tgz#b091a65253b059ed089ad73e41295689fa38cdd0"
+  integrity sha512-1M0ZdNxeVZ2FZCNDMVArcK8JU2jtkfCggeAHxPJX9VTk4h5W4UQJY9gbOJQ9yJbZdvyUKXdhSwaMR55Ft8o3jQ==
 
 serverfailsoft@2.1.1, serverfailsoft@^2.1.1:
   version "2.1.1"

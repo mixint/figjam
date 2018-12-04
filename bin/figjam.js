@@ -11,16 +11,20 @@ module.exports = class FigJam extends Transflect {
 
 	_open(source){
 		// check that I have access to the target directory...
+		let {query} = source
 		return Promise.all([
-			this.loadObject(`${this.source.query.figroot || this.source.query.fig || ''}.figroot.json`),
-			this.loadObject(`${this.source.query.transfig || this.source.query.fig || ''}.transfig.json`),
-			this.loadObject(this.source.query.ctx || this.source.query)
+			this.loadObject(`${query.figroot || query.fig || ''}.figroot.json`, {reject: true}),
+			this.loadObject(`${query.transfig || query.fig || ''}.transfig.json`,{reject: false}),
+			this.loadObject(query.ctx || query, {reject: false})
 		]).then(([figroot, transfig, ctx]) => {
 			this.figroot = figroot
 			this.transfig = transfig
 			this.ctx = ctx
+			console.log("FIGROOT", this.figroot)
+			console.log("TRANSFIG", this.transfit)
+			console.log("CTX", this.ctx)
 			return ctxify(this.figroot, this.ctx)
-		}) // 
+		}) // when returned to Transflect, rejected promises close the connection with the error.
 	}
 
 	_end(done){
@@ -57,26 +61,33 @@ module.exports = class FigJam extends Transflect {
 	 * is so I can use loadObject as a promise whether or not query.ctx exists,
 	 * in which case, I just fallback to the pathname query object as my context.
 	 */
-	loadObject(fig){
+	loadObject(fig, options){
 		if(Object.prototype.toString.call(fig) == '[object Object]'){
 			return Promise.resolve(fig)
 		} else {
 			return new Promise((resolve, reject) => {
-				if(url.parse(fig).protocol == 'http'){ // if it looks like a URL...
+				if(url.parse(fig).protocol == 'http:'){ // if it looks like a URL...
 					http.get(fig, response => {
+						if(response.statusCode >= 300) reject('Bad Response')
 						let buffers = []
 						response.on('data', data => buffers.push(data))
 						response.on('end', () => resolve(Buffer.concat(buffers)))
 					})
-				} else if(url.parse(fig).protocol == 'https'){
+				} else if(url.parse(fig).protocol == 'https:'){
 					https.get(fig, response => {
+						if(response.statusCode >= 300) reject('Bad Response')
 						let buffers = []
 						response.on('data', data => buffers.push(data))
 						response.on('end', () => resolve(Buffer.concat(buffers)))
 					})
 				} else {
+					// doesn't look like a web address (can't parse protocol)
 					this.find(this.source.pathname, fig, (err, figfullpath) => {
-						if(err) reject(err)
+						console.log("ERR", err)
+						console.log("FIGFULLPATH", figfullpath)
+						if(err)
+							return options.reject ? reject(err) : resolve(null)
+						// couldn't find it on the file system...
 						fs.readFile(figfullpath, (err, buffer) => {
 							if(err) reject(err)
 							else resolve(buffer)
@@ -94,29 +105,18 @@ module.exports = class FigJam extends Transflect {
 	}
 
 	find(pathname, basename, callback){
-		var pathparts = pathname.split('/')
-		var extantfig = null
-		var tryfig = null
-
-		while(!extantfig && pathparts.length){
-			try {
-				tryfig = path.resolve(...pathparts, basename)
-				console.log(tryfig)
-				fs.accessSync(tryfig, fs.constants.R_OK) // if file isn't readable, catch!
-				extantfig = tryfig
-			} catch(e){
-				pathparts.pop() // remove the trailing path section and try again
-			}
-		} // exit once extantfig has been defined OR ran out of path parts
-		  // see if we still don't have a fig after this...
-		if(!extantfig){
-			// recursion base case - we've already tried figpath and local directory, no luck:
-			if(pathname == process.env.figpath || pathname == './conf/') callback(new Error(`${basename} not found`))
-			else this.find(process.env.figpath || './conf/', basename, callback)
-		} else {
-			// else we're done, pass the filepath to callback.
-			callback(null, extantfig)
-		}
+		console.log("pathname",pathname)
+		console.log("basename", basename)
+		fs.readdir(pathname, (err, entries) => {
+			console.log(entries)
+			if(err)
+				callback(err)
+			else if(entries.includes(basename))
+				callback(null, path.resolve(pathname, basename))
+			else
+				if(pathname.length == '1') callback(new Error(`${basename} not found`))
+				else this.find(pathname.replace(/\w+\/?$/,''), basename, callback)
+		})
 	}
 
 }
